@@ -1,61 +1,71 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonItem, IonLabel, IonInput, IonButton } from '@ionic/angular/standalone';
-import { DataapiService } from '../dataapi.service';
 import { Router } from '@angular/router';
+import { DataapiService } from '../dataapi.service';
+
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonItem,
+  IonButton,
+  IonInput, IonLabel } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-addproduct',
   templateUrl: './addproduct.page.html',
   styleUrls: ['./addproduct.page.scss'],
   standalone: true,
-  imports: [IonButton, IonInput, IonLabel, IonItem, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [IonLabel, 
+    IonInput,
+    IonButton,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    CommonModule,
+    FormsModule,
+    IonButton,
+    IonItem,
+    IonInput,
+  ],
 })
 export class AddproductPage implements OnInit {
+  txtname: any;
+  txtprice: any;
+  selectedFile: File | null = null;
 
-  txtname: string = '';
-  txtprice: string = '';
-  selectFile: File | null = null;
-  dataapi: any;
-
-  constructor(
-    private dataApiService: DataapiService,
-    private router: Router
-  ) { }
+  constructor(private dataapi: DataapiService, private route: Router) {}
 
   onFileChange(event: any) {
     const file = event.target.files[0];
     if (file) {
-      this.selectFile = file;
+      this.selectedFile = file;
     }
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   addproduct() {
     const formData = new FormData();
     formData.append('name', this.txtname);
     formData.append('price', this.txtprice);
-
-    if (this.selectFile) {
-      formData.append('image', this.selectFile, this.selectFile.name);
+    if (this.selectedFile) {
+      formData.append('image', this.selectedFile, this.selectedFile.name);
     }
-
-    this.dataApiService.addproduct(formData).subscribe({
+    this.dataapi.addproduct(formData).subscribe({
       next: (res: any) => {
-        console.log("บันทึกข้อมูลสำเร็จ", res);
+        console.log('บันทึกข้อมูลสำเร็จ', res);
         this.txtname = '';
         this.txtprice = '';
-        this.selectFile = null;
+        this.selectedFile = null;
         window.location.href = '/showproduct';
       },
       error: (err) => {
-        console.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล", err);
-        if(err.error instanceof ProgressEvent) {
-          console.error('เกิดข้อผิดพลาดในการเชื่อต่อกับเซิร์ฟเวอร์')
-      }
-    }
+        console.error('เกิดข้อผิดพลาด', err);
+      },
     });
   }
 }
